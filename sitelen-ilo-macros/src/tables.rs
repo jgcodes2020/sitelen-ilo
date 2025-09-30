@@ -150,4 +150,6 @@ pub(crate) static PUNCT_TABLE: phf::Map<&'static str, char> = phf_map! {
     "]" => '\u{F1991}',
     "." => '\u{F199C}',
     ":" => '\u{F199D}',
+    "<" => '「',
+    ">" => '」',
 };

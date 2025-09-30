@@ -19,9 +19,14 @@ fn nasin_nanpa_pona(input: Span) -> ParseResult<i64> {
     let mut end_idx: Option<usize> = None;
 
     for (i, c) in input.char_indices() {
-        // To remain backwards-compatible with nasin pu, nasin nanpa pona
-        // makes ale additive if used first.
         if i == 0 {
+            // special case: ala
+            if c == sp_c!("ala") {
+                expect_end = true;
+                continue;
+            }
+            // To remain backwards-compatible with nasin pu, nasin nanpa pona
+            // makes ale additive if used first.
             add_ale = c == sp_c!("ale");
         }
 
@@ -87,8 +92,104 @@ fn nasin_nanpa_pona(input: Span) -> ParseResult<i64> {
 
 /// Parses the quoted portion of a *nanpa* literal.
 pub(super) fn nanpa_quoted(input: Span) -> ParseResult<Literal> {
-    let (input1, _) = char('「').parse(input)?;
+    let (input1, _) = char('「').parse_complete(input)?;
     let (input2, value) = nasin_nanpa_pona(input1)?;
-    let (input3, _) = char('」').parse(input2).map_err(nom_force_fatal)?;
+    let (input3, _) = char('」').parse_complete(input2).map_err(nom_force_fatal)?;
     Ok((input3, Literal::Nanpa(value)))
+}
+
+#[cfg(test)]
+mod tests {
+    use sitelen_ilo_macros::sp;
+
+    use crate::{ast::object::Literal, parse::{object::nanpa::nanpa_quoted, Span}};
+
+    fn check_valid(test_val: &str, num: i64) {
+        let mut span: Span = Span::new(test_val);
+        
+        let value: Literal;
+        (span, value) = nanpa_quoted(span).expect("parser should not error");
+
+        assert_eq!(value, Literal::Nanpa(num));
+        assert!(span.is_empty());
+    }
+    fn check_invalid(test_val: &str) {
+        let span: Span = Span::new(test_val);
+        let err = nanpa_quoted(span).expect_err("parser should fail");
+        assert!(!err.is_incomplete());
+    }
+
+    #[test]
+    fn test_zero() {
+        check_valid(sp!("<ala>"), 0);
+    }
+
+    #[test]
+    fn test_pos_units() {
+        check_valid(sp!("<wan>"), 1);
+        check_valid(sp!("<tu>"), 2);
+        check_valid(sp!("<luka>"), 5);
+        check_valid(sp!("<mute>"), 20);
+    }
+
+    #[test]
+    fn test_pos_small() {
+        check_valid(sp!("<luka luka>"), 10);
+        check_valid(sp!("<luka luka luka>"), 15);
+        check_valid(sp!("<mute luka tu wan>"), 28);
+        check_valid(sp!("<mute mute tu>"), 42);
+        check_valid(sp!("<mute mute mute luka tu tu>"), 69);
+    }
+
+    #[test]
+    fn test_pos_fallback() {
+        check_valid(sp!("<ale wan>"), 101);
+        check_valid(sp!("<ale mute luka tu wan>"), 128);
+        check_valid(sp!("<ale ale ale ale mute>"), 420);
+    }
+
+    #[test]
+    fn test_pos_nnp() {
+        check_valid(sp!("<luka luka luka tu tu ale mute mute mute mute tu tu>"), 1984);
+        check_valid(sp!("<wan ale ale ale>"), 1_000_000);
+        check_valid(sp!("<luka wan ale mute mute mute mute luka luka tu tu ale mute>"), 69420);
+    }
+
+    #[test]
+    fn test_neg_units() {
+        check_valid(sp!("<wan weka>"), -1);
+        check_valid(sp!("<tu weka>"), -2);
+        check_valid(sp!("<luka weka>"), -5);
+        check_valid(sp!("<mute weka>"), -20);
+    }
+
+    #[test]
+    fn test_neg_small() {
+        check_valid(sp!("<luka luka weka>"), -10);
+        check_valid(sp!("<luka luka luka weka>"), -15);
+        check_valid(sp!("<mute luka tu wan weka>"), -28);
+        check_valid(sp!("<mute mute tu weka>"), -42);
+        check_valid(sp!("<mute mute mute luka tu tu weka>"), -69);
+    }
+
+    #[test]
+    fn test_neg_fallback() {
+        check_valid(sp!("<ale wan weka>"), -101);
+        check_valid(sp!("<ale mute luka tu wan weka>"), -128);
+        check_valid(sp!("<ale ale ale ale mute weka>"), -420);
+    }
+
+    #[test]
+    fn test_neg_nnp() {
+        check_valid(sp!("<luka luka luka tu tu ale mute mute mute mute tu tu weka>"), -1984);
+        check_valid(sp!("<luka wan ale mute mute mute mute luka luka tu tu ale mute weka>"), -69420);
+        check_valid(sp!("<wan ale ale ale weka>"), -1_000_000);
+    }
+
+    #[test]
+    fn test_failures() {
+        check_invalid(sp!("<wan"));
+        check_invalid(sp!("<wan suli>"));
+        check_invalid(sp!("<o moli e mi>"));
+    }
 }

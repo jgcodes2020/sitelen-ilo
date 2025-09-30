@@ -1,36 +1,36 @@
 use crate::ast::object::Object;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CondEqual {
     pub(crate) a: Object,
     pub(crate) b: Object
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CondGreater {
     pub(crate) a: Object,
     pub(crate) b: Object,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CondLess {
     pub(crate) a: Object,
     pub(crate) b: Object,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CondAndEqual {
     pub(crate) ps: Vec<Object>,
     pub(crate) q: Object
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CondOrEqual {
     pub(crate) ps: Vec<Object>,
     pub(crate) q: Object
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Condition {
     Equal(CondEqual),
     Greater(CondGreater),

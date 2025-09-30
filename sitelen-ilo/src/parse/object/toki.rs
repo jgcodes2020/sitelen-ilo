@@ -19,7 +19,7 @@ pub fn toki_quoted(input: Span) -> ParseResult<Literal> {
     let mut result = String::new();
 
     // open quote
-    let (mut remain, _) = char('「').parse(input)?;
+    let (mut remain, _) = char('「').parse_complete(input)?;
     loop {
         // read until open or close quote
         let (remain1, chunk) = take_till(|c| ['「', '」'].contains(&c))(remain)?;

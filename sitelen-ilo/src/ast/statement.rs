@@ -1,13 +1,13 @@
 use crate::ast::{condition::Condition, object::Object};
 
 /// A target for a command statement.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Target {
     Ilo,
 }
 
 /// A keyword that begins an argument.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ArgKey {
     E,
     Tawa,
@@ -16,7 +16,7 @@ pub(crate) enum ArgKey {
 }
 
 /// A keyword that denotes a block.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BlockType {
     /// A run-once block.
     Pali,
@@ -24,13 +24,13 @@ pub(crate) enum BlockType {
     Sike,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Comment {
     content: String,
 }
 
 /// A command statement (one which uses *o*, generally performing some action.)
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Command {
     pub(crate) condition: Option<Condition>,
     pub(crate) target: Option<Target>,
@@ -39,7 +39,7 @@ pub(crate) struct Command {
 }
 
 /// The beginning of a block, potentially with a condition or chain.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct BlockStart {
     pub(crate) chained: bool,
     pub(crate) condition: Option<Condition>,
@@ -47,7 +47,7 @@ pub(crate) struct BlockStart {
 }
 
 /// A condition evaluation (using *ken la*).
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConditionEval {
     pub(crate) condition: Condition,
 }

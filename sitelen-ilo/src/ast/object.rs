@@ -19,7 +19,7 @@ pub(crate) trait TypedValue {
 }
 
 /// A literal value (of either *toki*, *nanpa*, or *lon*).
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Literal {
     Toki(String),
     Nanpa(i64),
@@ -36,7 +36,7 @@ impl TypedValue for Literal {
 }
 
 /// A named variable.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Variable {
     pub(crate) ptype: PrimitiveType,
     pub(crate) name: String,
@@ -48,7 +48,7 @@ impl TypedValue for Variable {
 }
 
 /// A reference to *ni*, the special last-result variable.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct NiRef {
     pub(crate) ptype: PrimitiveType,
 }
@@ -59,7 +59,7 @@ impl TypedValue for NiRef {
 }
 
 /// An object with a value.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Object {
     Variable(Variable),
     Literal(Literal),
