@@ -1,7 +1,6 @@
 use nom::{
     branch::alt, bytes::complete::{take, take_till}, error::Error, multi::{fold, separated_list0}, Parser
 };
-use phf::phf_map;
 
 use crate::tables::{PUNCT_TABLE, SP_TABLE};
 

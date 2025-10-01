@@ -1,16 +1,18 @@
 use nom::{branch::alt, character::char, combinator::value, Parser};
 use sitelen_ilo_macros::sp_c;
 
-use crate::{ast::object::Literal, parse::{error::{nom_force_fatal, ParseResult}, Span}};
+use crate::{ast::object::Literal, parse::{error::{nom_force_failure, ParseError, ParseResult}, Span}};
+
+const ERR_FAILED_LON_MATCH: &str = "`lon`-typed value may only take `lon` or `ala`";
 
 /// Parses the quoted portion of a *lon* literal.
-fn lon_quoted(input: Span) -> ParseResult<Literal> {
+pub(super) fn lon_quoted(input: Span) -> ParseResult<Literal> {
     let (input1, _) = char('「').parse_complete(input)?;
     let (input2, value) = alt([
         value(true, char(sp_c!("lon"))),
         value(false, char(sp_c!("ala"))),
-    ]).parse(input1)?;
-    let (input3, _) = char('」').parse_complete(input2).map_err(nom_force_fatal)?;
+    ]).parse_complete(input1).map_err(ParseError::override_reason(ERR_FAILED_LON_MATCH)).map_err(nom_force_failure)?;
+    let (input3, _) = char('」').parse_complete(input2).map_err(nom_force_failure)?;
     Ok((input3, Literal::Lon(value)))
 }
 

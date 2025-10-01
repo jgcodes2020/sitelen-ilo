@@ -47,6 +47,14 @@ impl<'a> ParseError<'a> {
     pub(crate) fn into_failure(self) -> nom::Err<Self> {
         nom::Err::Failure(self)
     }
+
+    /// Convenient helper to override the default reason provided by `nom`.
+    pub(crate) fn override_reason(reason: impl Into<String>) -> impl FnOnce(nom::Err<Self>) -> nom::Err<Self> {
+        |err| err.map(move |mut p_err| {
+            p_err.reason = reason.into();
+            p_err
+        })
+    }
 }
 impl<'a> Display for ParseError<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -85,7 +93,7 @@ pub(crate) type ParseResult<'a, T> = Result<(Span<'a>, T), nom::Err<ParseError<'
 pub(crate) type NomErrorKind = nom::error::ErrorKind;
 
 /// Forces parsing errors into failures.
-pub(super) fn nom_force_fatal<E>(err: nom::Err<E>) -> nom::Err<E> {
+pub(super) fn nom_force_failure<E>(err: nom::Err<E>) -> nom::Err<E> {
     match err {
         nom::Err::Incomplete(_) => err,
         nom::Err::Error(value) => nom::Err::Failure(value),

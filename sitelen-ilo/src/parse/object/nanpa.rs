@@ -4,7 +4,7 @@ use nom::{Input, Parser, character::char};
 use sitelen_ilo_macros::sp_c;
 
 use crate::{ast::object::Literal, parse::{
-    error::{nom_force_fatal, ParseError, ParseResult}, Span
+    error::{nom_force_failure, ParseError, ParseResult}, Span
 }};
 
 const ERR_NNP_TOO_LARGE: &str = "value out of range for nanpa";
@@ -20,10 +20,17 @@ fn nasin_nanpa_pona(input: Span) -> ParseResult<i64> {
 
     for (i, c) in input.char_indices() {
         if i == 0 {
-            // special case: ala
-            if c == sp_c!("ala") {
-                expect_end = true;
-                continue;
+            match c {
+                sp_c!("ala") => {
+                    // special case: ala
+                    expect_end = true;
+                    continue;
+                }
+                sp_c!("weka") => {
+                    // special case: weka can't be first
+                    return Err(ParseError::new(input, ERR_NNP_FAILED_MATCH).into_failure());
+                }
+                _ => ()
             }
             // To remain backwards-compatible with nasin pu, nasin nanpa pona
             // makes ale additive if used first.
@@ -94,7 +101,7 @@ fn nasin_nanpa_pona(input: Span) -> ParseResult<i64> {
 pub(super) fn nanpa_quoted(input: Span) -> ParseResult<Literal> {
     let (input1, _) = char('「').parse_complete(input)?;
     let (input2, value) = nasin_nanpa_pona(input1)?;
-    let (input3, _) = char('」').parse_complete(input2).map_err(nom_force_fatal)?;
+    let (input3, _) = char('」').parse_complete(input2).map_err(nom_force_failure)?;
     Ok((input3, Literal::Nanpa(value)))
 }
 
@@ -191,5 +198,8 @@ mod tests {
         check_invalid(sp!("<wan"));
         check_invalid(sp!("<wan suli>"));
         check_invalid(sp!("<o moli e mi>"));
+        check_invalid(sp!("<ala weka>"));
+        check_invalid(sp!("<wan weka suli a>"));
+        check_invalid(sp!("<weka>"));
     }
 }
