@@ -2,7 +2,7 @@ use nom::{
     Parser,
     branch::alt,
     bytes::complete::{tag, take_till},
-    character::{anychar, char},
+    character::char,
 };
 
 use crate::{

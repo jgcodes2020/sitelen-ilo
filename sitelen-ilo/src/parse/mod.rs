@@ -1,6 +1,4 @@
-use std::fmt::Display;
 
-use nom::Err;
 use nom_locate::LocatedSpan;
 
 pub(crate) mod error;

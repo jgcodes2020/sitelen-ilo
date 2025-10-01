@@ -1,16 +1,14 @@
-use arrayvec::ArrayVec;
 use nom::{
-    IResult, Parser,
+    Parser,
     branch::alt,
-    bytes::complete::{tag, take_till, take_while},
+    bytes::complete::take_while,
     character::{anychar, complete::char},
     combinator::{map, value},
-    error::{Error, ErrorKind},
 };
-use sitelen_ilo_macros::{sp, sp_c};
+use sitelen_ilo_macros::sp_c;
 
 use crate::{
-    ast::object::{Literal, NiRef, Object, PrimitiveType, Variable},
+    ast::object::{NiRef, Object, PrimitiveType, Variable},
     parse::{
         Span,
         error::{ParseError, ParseResult, nom_force_failure},
